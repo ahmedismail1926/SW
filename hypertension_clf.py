@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -20,3 +21,5 @@ train_score = knn_clf.score(X_train, y_train)
 test_score = knn_clf.score(X_test, y_test)
 print(train_score)
 print(test_score)
+ap=average_precision_score(y_test, knn_clf.predict_proba(X_test)[:, 1])
+print(ap)

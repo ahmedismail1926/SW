@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 
 def col_types(df):
@@ -44,3 +45,5 @@ train_score = RF_clf.score(X_train, y_train)
 test_score = RF_clf.score(X_test, y_test)
 print(f"Train Score: {train_score * 100:.2f}%")
 print(f"Test Score: {test_score * 100:.2f}%")
+ap=average_precision_score(y_test, RF_clf.predict_proba(X_test)[:, 1])
+print(ap)
