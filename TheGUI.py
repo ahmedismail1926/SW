@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QStackedWidget, QVBoxLayout, QFormLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox
+    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox,QTableWidget, QTableWidgetItem
 )
 import database,heart_disease_clf,hypertension_clf,stroke_clf
 
@@ -85,6 +85,11 @@ class SignUpPage(QWidget):
         sign_up_button = QPushButton("Sign Up", self)
         sign_up_button.clicked.connect(self.sign_up)
         layout.addWidget(sign_up_button)
+        # back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        layout.addWidget(back_button)
+
 
         self.setLayout(layout)
     def sign_up(self):
@@ -122,9 +127,39 @@ class DiseaseChoicePage(QWidget):
         next_button = QPushButton("Next", self)
         next_button.clicked.connect(self.next_page)
         layout.addWidget(next_button)
+        #back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        layout.addWidget(back_button)  # Add at the end of the layout
+        #diagnosis his
+        # Diagnosis history label
+        self.historyTable = QTableWidget(self)
+        self.historyTable.setColumnCount(3)  # 3 columns: Disease Type, Diagnosis, Date
+        self.historyTable.setHorizontalHeaderLabels(["Disease Type", "Diagnosis", "Date"])
+        layout.addWidget(self.historyTable)
+
+
 
         self.setLayout(layout)
 
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.load_diagnosis_history()
+
+    def load_diagnosis_history(self):
+        user_id = self.parent.current_user_id
+        history = database.fetch_diagnosis_history(user_id)
+        
+        
+        self.historyTable.clearContents()
+        self.historyTable.setRowCount(len(history))
+        for row_index, entry in enumerate(history):
+            self.historyTable.setItem(row_index, 0, QTableWidgetItem(entry['disease_type']))
+            self.historyTable.setItem(row_index, 1, QTableWidgetItem(str(entry['diagnosis'])))
+            self.historyTable.setItem(row_index, 2, QTableWidgetItem(entry['date']))
+        
+        
+        self.historyTable.resizeColumnsToContents()
     def next_page(self):
         selected_disease = self.disease_combo.currentText()
         if selected_disease == "Heart Disease":
@@ -200,6 +235,12 @@ class HeartDiseaseFormPage(QWidget):
         save_button.clicked.connect(self.save_attributes)
         layout.addWidget(save_button)
 
+        #back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
+        layout.addWidget(back_button)  # Add button to layout
+        
+
         self.setLayout(layout)
 
     def save_attributes(self):
@@ -233,8 +274,10 @@ class HeartDiseaseFormPage(QWidget):
             obesity=self.parent.heart_disease_data["obesity"],
             Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
             )
-            print("Prediction:", prediction)
+            print("Prediction:", prediction)# Save to the database
+            database.insert_diagnosis_result(self.parent.current_user_id, "Heart Disease", int(prediction))
             QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
+
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {e}")
             print("Error:", e)
@@ -304,6 +347,11 @@ class HypertensionFormPage(QWidget):
         save_button = QPushButton("Save", self)
         save_button.clicked.connect(self.save_attributes)
         layout.addWidget(save_button)
+        #back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
+        layout.addWidget(back_button)  # Add button to layout
+        
 
         self.setLayout(layout)
 
@@ -339,7 +387,10 @@ class HypertensionFormPage(QWidget):
         thal=self.parent.hypertension_data["thal"]
         )
         print("Prediction:", prediction)
+        # Save to the database
+        database.insert_diagnosis_result(self.parent.current_user_id, "Hypertension", int(prediction))
         QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
+
         # except Exception as e:
         #     QMessageBox.critical(self, "Error", f"An error occurred: {e}")
         #     print("Error:", e)
@@ -391,6 +442,11 @@ class StrokeFormPage(QWidget):
         save_button = QPushButton("Save", self)
         save_button.clicked.connect(self.save_attributes)
         layout.addWidget(save_button)
+        #back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
+        layout.addWidget(back_button)  # Add button to layout
+        
 
         self.setLayout(layout)
 
@@ -419,6 +475,8 @@ class StrokeFormPage(QWidget):
         bmi = self.parent.stroke_data["bmi"],
         smoking_status = self.parent.stroke_data["smoking_status"])
         print("Prediction:", prediction)
+        # Save to the database
+        database.insert_diagnosis_result(self.parent.current_user_id, "Stroke", int(prediction))
         QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
 
 class MainApp(QStackedWidget):
@@ -429,6 +487,7 @@ class MainApp(QStackedWidget):
         self.heart_disease_data = {}
         self.hypertension_data={}
         self.stroke_data={}
+        self.page_history=[] # teh stack to store the his
         self.login_page = LoginPage(self)
         self.sign_up_page = SignUpPage(self)
         self.disease_choice_page = DiseaseChoicePage(self)
@@ -442,7 +501,6 @@ class MainApp(QStackedWidget):
         self.addWidget(self.heart_disease_form_page)
         self.addWidget(self.hypertension_form_page)
         self.addWidget(self.stroke_form_page)
-
         self.setCurrentWidget(self.login_page)
 
     def switch_to_sign_up(self):
@@ -461,7 +519,18 @@ class MainApp(QStackedWidget):
         self.setCurrentWidget(self.hypertension_form_page)
     def switch_to_stroke_form(self):
         self.setCurrentWidget(self.stroke_form_page)
-
+    def setCurrentWidget(self, widget):
+        """Override setCurrentWidget to store history."""
+        if self.currentWidget() != widget:
+            self.page_history.append(self.currentWidget())  # Store current page before switching
+        super().setCurrentWidget(widget)
+    def go_back(self):
+        """Switch to the previous page."""
+        if self.page_history:
+            previous_page = self.page_history.pop()
+            super().setCurrentWidget(previous_page)
+        else:
+            print("No previous page to go back to.")  # Or handle differently
 if __name__ == "__main__":
     import sys
     database.create_table()  
