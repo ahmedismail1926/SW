@@ -1,8 +1,6 @@
 import sqlite3
 
-
 DATABASE_FILE = "Database.db"
-last_logged_in_user_id = None
 
 def create_table():
     """Create the tables if they don't exist."""
@@ -12,29 +10,45 @@ def create_table():
    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_info (
-            user_id INTEGER PRIMARY KEY,
-            password TEXT NOT NULL,
+           user_id INTEGER PRIMARY KEY,
             age INTEGER CHECK(age >= 0 AND age <= 120),
-            sex INTEGER CHECK(sex IN (0, 1))   
+            sex INTEGER CHECK(sex IN (0, 1)),
+            cp INTEGER CHECK(cp IN (0, 1, 2, 3)),
+            trestbps BLOB CHECK(trestbps > 0),
+            chol INTEGER CHECK(chol > 0),
+            fbs NUMERIC CHECK(fbs IN (0, 1)),
+            restecg INTEGER CHECK(restecg IN (0, 1, 2)),
+            thalach INTEGER CHECK(thalach > 0),
+            exang INTEGER CHECK(exang IN (0, 1)),
+            oldpeak REAL CHECK(oldpeak >= 0),
+            password INTEGER,
+            PRIMARY KEY(user_id, password)
         )
     ''')
     conn.commit()
     conn.close()
 
-def insert_user_data(user_id, password, age, sex):
-    existing_user = fetch_user_data(user_id,password)
-    if existing_user:
-        return False  
-    
+def insert_credentials(user_id, password):
+    """Insert new credentials into the database during sign-up."""
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO user_info (user_id, password, age, sex) VALUES (?, ?, ?, ?)", (user_id, password, age, sex))
-    conn.commit()
-    return True  
+    try:
+        cursor.execute('''
+            INSERT INTO user_info (user_id, password)
+            VALUES (?, ?)
+        ''', (user_id, password))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        raise ValueError("User ID already exists.")
+    finally:
+        conn.close()
+
+def insert_user_data(user_id, password):
+    """Alias for inserting user credentials."""
+    insert_credentials(user_id, password)
 
 def fetch_user_data(user_id, password):
-    """Fetch user data for login and update the last logged-in user."""
-    global last_logged_in_user_id  # To update the global variable
+    """Fetch user data for login."""
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     cursor.execute('''
@@ -42,9 +56,6 @@ def fetch_user_data(user_id, password):
     ''', (user_id, password))
     row = cursor.fetchone()
     conn.close()
-    
-    if row:
-        last_logged_in_user_id = user_id  # Update last logged-in user
     return row
 
 def update_user_data(user_id, user_data):
@@ -53,32 +64,8 @@ def update_user_data(user_id, user_data):
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE user_info 
-        SET age = ?, sex = ?
+        SET age = ?, sex = ?, cp = ?, trestbps = ?, chol = ?, fbs = ?, restecg = ?, thalach = ?, exang = ?, oldpeak = ?
         WHERE user_id = ?
     ''', (*user_data, user_id))
     conn.commit()
     conn.close()
-
-def get_user_sex(user_id):
-    """Return the sex of the user given their user_id."""
-    conn = sqlite3.connect(DATABASE_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT sex FROM user_info WHERE user_id = ?
-    ''', (user_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    return row[0] if row else None  # Return sex if found, else None
-
-def get_user_age(user_id):
-    """Return the age of the user given their user_id."""
-    conn = sqlite3.connect(DATABASE_FILE)
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT age FROM user_info WHERE user_id = ?
-    ''', (user_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    return row[0] if row else None 
