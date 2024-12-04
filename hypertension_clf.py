@@ -23,3 +23,13 @@ print(train_score)
 print(test_score)
 ap=average_precision_score(y_test, knn_clf.predict_proba(X_test)[:, 1])
 print(ap)
+
+def classify_Patient_hypertension(age,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal):
+    
+    features = np.array([age,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]).reshape(1, -1)
+    prediction = knn_clf.predict(features)
+    return prediction[0]
+
+predicted_class = classify_Patient_hypertension(*X[10])
+print(f"The predicted class is: {predicted_class}")
+
