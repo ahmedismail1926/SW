@@ -42,22 +42,8 @@ for m in string_to_numeric_mapping:
 y = df['stroke'].values
 X = df.drop('stroke', axis=1).values
 
-old_X = X
-old_y = y
-
-# Apply Edited Nearest Neighbors (ENN) to remove noise
-enn = EditedNearestNeighbours(n_neighbors=3)  # Using 3 nearest neighbors
-X, y = enn.fit_resample(X, y)
-
-# Print data sizes before and after noise removal
-print("Original data size:", old_X.shape)
-print("After noise removal:", X.shape)
-
-# Check class distribution
-original_counts = dict(zip(*np.unique(old_y, return_counts=True)))
-cleaned_counts = dict(zip(*np.unique(y, return_counts=True)))
-print("Class distribution before cleaning:", original_counts)
-print("Class distribution after cleaning:", cleaned_counts)
+counts = dict(zip(*np.unique(y, return_counts=True)))
+print("Class distribution before cleaning:", counts)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -69,3 +55,16 @@ ap=average_precision_score(y_test, RF_clf.predict_proba(X_test)[:, 1])
 print(train_score)
 print(val_score)
 print(ap)
+
+
+def classify_Patient_stroke(sex,age,hypertension,heart_disease,ever_married,work_type,Residence_type,avg_glucose_level,bmi,smoking_status):
+    
+    sample = np.array([sex,age,hypertension,heart_disease,ever_married,work_type,Residence_type,avg_glucose_level,bmi,smoking_status]).reshape(1, -1)
+    prediction = RF_clf.predict(sample)
+    return prediction[0]
+
+
+
+# for i in range(35000):
+#     predicted_class = classify_Patient_stroke(*X[i])
+#     print(f"The predicted class is: {predicted_class}")
