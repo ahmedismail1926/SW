@@ -41,9 +41,20 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 
 RF_clf =RandomForestClassifier(max_depth=2,max_features=3, random_state=0)
 RF_clf.fit(X_train, y_train)
+
 train_score = RF_clf.score(X_train, y_train)
 test_score = RF_clf.score(X_test, y_test)
 print(f"Train Score: {train_score * 100:.2f}%")
 print(f"Test Score: {test_score * 100:.2f}%")
 ap=average_precision_score(y_test, RF_clf.predict_proba(X_test)[:, 1])
 print(ap)
+
+def classify_Patient_heart_disease(age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar):
+    
+    features = np.array([age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar]).reshape(1, -1)
+    prediction = RF_clf.predict(features)
+    return prediction[0]
+
+example_features = X_test[0]
+predicted_class = classify_Patient_heart_disease(*X[3])
+print(f"The predicted class is: {predicted_class}")
