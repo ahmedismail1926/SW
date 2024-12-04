@@ -407,4 +407,7 @@ if __name__ == "__main__":
     main_app.setWindowTitle("Disease Diagnosis System")
     main_app.resize(400, 600)
     main_app.show()
+   # print("user age is ",database.get_user_age(self.user_id))
+  #  print("user sex is",database.get_user_sex)
     sys.exit(app.exec_())
+

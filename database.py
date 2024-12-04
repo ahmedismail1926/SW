@@ -1,6 +1,8 @@
 import sqlite3
 
+
 DATABASE_FILE = "Database.db"
+last_logged_in_user_id = None
 
 def create_table():
     """Create the tables if they don't exist."""
@@ -31,7 +33,8 @@ def insert_user_data(user_id, password, age, sex):
     return True  
 
 def fetch_user_data(user_id, password):
-    """Fetch user data for login."""
+    """Fetch user data for login and update the last logged-in user."""
+    global last_logged_in_user_id  # To update the global variable
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
     cursor.execute('''
@@ -39,6 +42,9 @@ def fetch_user_data(user_id, password):
     ''', (user_id, password))
     row = cursor.fetchone()
     conn.close()
+    
+    if row:
+        last_logged_in_user_id = user_id  # Update last logged-in user
     return row
 
 def update_user_data(user_id, user_data):
@@ -52,3 +58,27 @@ def update_user_data(user_id, user_data):
     ''', (*user_data, user_id))
     conn.commit()
     conn.close()
+
+def get_user_sex(user_id):
+    """Return the sex of the user given their user_id."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT sex FROM user_info WHERE user_id = ?
+    ''', (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    return row[0] if row else None  # Return sex if found, else None
+
+def get_user_age(user_id):
+    """Return the age of the user given their user_id."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT age FROM user_info WHERE user_id = ?
+    ''', (user_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    return row[0] if row else None 
