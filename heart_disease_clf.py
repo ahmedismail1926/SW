@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 
+print("Heart disease")
 def col_types(df):
     types = []
     for col in df.columns:
@@ -49,12 +50,55 @@ print(f"Test Score: {test_score * 100:.2f}%")
 ap=average_precision_score(y_test, RF_clf.predict_proba(X_test)[:, 1])
 print(ap)
 
-def classify_Patient_heart_disease(age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar):
+# def classify_Patient_heart_disease(age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar):
     
-    features = np.array([age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar]).reshape(1, -1)
+#     features = np.array([age,gender, cholester,heart_rate, smoking, Alcohol_Intake,Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar]).reshape(1, -1)
+#     prediction = RF_clf.predict(features)
+#     return prediction[0]
+
+# example_features = X_test[0]
+# predicted_class = classify_Patient_heart_disease(*X[3])
+# print(f"The predicted class is: {predicted_class}")
+
+def classify_Patient_heart_disease(
+    age, gender, cholester, heart_rate, smoking, Alcohol_Intake, 
+    Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar
+):
+    gender_map = {'Female': 0, 'Male': 1}
+    smoking_map = {'Current': 0, 'Never': 1, 'Former': 2}
+    alcohol_map = {'Heavy': 0, None: 1, 'Moderate': 2}
+    family_history_map = {'No': 0, 'Yes': 1}
+    diabetes_map = {'No': 0, 'Yes': 1}
+    obesity_map = {'Yes': 0, 'No': 1}
+    
+    try:
+        gender = gender_map[gender]
+        smoking = smoking_map[smoking]
+        Alcohol_Intake = alcohol_map.get(Alcohol_Intake, 1)  # Use default for missing
+        Family_History = family_history_map[Family_History]
+        diabetes = diabetes_map[diabetes]
+        obesity = obesity_map[obesity]
+    except KeyError as e:
+        raise ValueError(f"Invalid input for categorical variable: {e}")
+    
+    try:
+        age = float(age)
+        cholester = float(cholester)
+        heart_rate = float(heart_rate)
+        Exercise_Hours = float(Exercise_Hours)
+        Blood_sugar = float(Blood_sugar)
+    except ValueError as e:
+        raise ValueError(f"Invalid numerical input: {e}")
+    
+    # Prepare feature array
+    features = np.array([
+        age, gender, cholester, heart_rate, smoking, Alcohol_Intake,
+        Exercise_Hours, Family_History, diabetes, obesity, Blood_sugar
+    ]).reshape(1, -1)
+    
+    # Predict using the model
     prediction = RF_clf.predict(features)
     return prediction[0]
 
-example_features = X_test[0]
-predicted_class = classify_Patient_heart_disease(*X[3])
-print(f"The predicted class is: {predicted_class}")
+
+

@@ -5,6 +5,7 @@ from sklearn.metrics import average_precision_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
+print("hypertension")
 df = pd.read_csv('hypertension.csv')
 
 columns_to_drop = [1]
@@ -24,12 +25,33 @@ print(test_score)
 ap=average_precision_score(y_test, knn_clf.predict_proba(X_test)[:, 1])
 print(ap)
 
-def classify_Patient_hypertension(age,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal):
-    
-    features = np.array([age,cp,trestbps,chol,fbs,restecg,thalach,exang,oldpeak,slope,ca,thal]).reshape(1, -1)
+def classify_Patient_hypertension(age, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal):
+    """
+    Convert string inputs to numerical values based on the mapping and classify hypertension.
+    """
+    # Mappings
+    cp_mapping = {'asymptomatic': 0, 'typical angina': 1, 'atypical angina': 2, 'non-anginal': 3}
+    fbs_mapping = {'Yes': 1, 'No': 0}
+    restecg_mapping = {'normal': 0, 'ST-T wave abnormality': 1, 'left ventricular hypertrophy': 2}
+    exang_mapping = {'Yes': 1, 'No': 0}
+    slope_mapping = {'Upsloping': 0, 'Flat': 1, 'Downsloping': 2}
+    thal_mapping = {'Normal': 0, 'Fixed defect': 1, 'Reversible defect': 2}
+
+    # Convert string inputs to numbers
+    cp = cp_mapping[cp]
+    fbs = fbs_mapping[fbs]
+    restecg = restecg_mapping[restecg]
+    exang = exang_mapping[exang]
+    slope = slope_mapping[slope]
+    thal = thal_mapping[thal]
+
+    # Convert inputs to numpy array
+    features = np.array([age, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]).reshape(1, -1)
+
+    # Predict using the model
     prediction = knn_clf.predict(features)
     return prediction[0]
 
-predicted_class = classify_Patient_hypertension(*X[10])
-print(f"The predicted class is: {predicted_class}")
+
+
 
