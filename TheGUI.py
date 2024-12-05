@@ -175,6 +175,10 @@ class HeartDiseaseFormPage(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.advice_messages = {
+            1: "Maintain a healthy diet, avoid smoking, exercise regularly, and consult your doctor.",
+            0: "Maintain regular health check-ups and a healthy lifestyle."
+        }
         self.init_ui()
 
     def init_ui(self):
@@ -274,10 +278,14 @@ class HeartDiseaseFormPage(QWidget):
             obesity=self.parent.heart_disease_data["obesity"],
             Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
             )
-            print("Prediction:", prediction)# Save to the database
+            # Determine advice based on the prediction result
+            advice = self.advice_messages[int(prediction)]  # Access the advice dictionary
+            
+            # Insert the diagnosis result into the database
             database.insert_diagnosis_result(self.parent.current_user_id, "Heart Disease", int(prediction))
-            QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
-
+            
+            # Display prediction result and advice
+            QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {e}")
             print("Error:", e)
@@ -288,6 +296,10 @@ class HypertensionFormPage(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.advice_messages = {
+            1: "Reduce salt intake, manage stress, exercise regularly, and monitor your blood pressure.",
+            0: "Maintain a balanced diet and regular check-ups to prevent hypertension."
+        }
         self.init_ui()
 
     def init_ui(self):
@@ -386,14 +398,14 @@ class HypertensionFormPage(QWidget):
         ca=self.parent.hypertension_data["ca"],
         thal=self.parent.hypertension_data["thal"]
         )
-        print("Prediction:", prediction)
-        # Save to the database
-        database.insert_diagnosis_result(self.parent.current_user_id, "Hypertension", int(prediction))
-        QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
+            # Determine advice based on the prediction result
+        advice = self.advice_messages[int(prediction)]  # Access the advice dictionary
 
-        # except Exception as e:
-        #     QMessageBox.critical(self, "Error", f"An error occurred: {e}")
-        #     print("Error:", e)
+        # Insert the diagnosis result into the database
+        database.insert_diagnosis_result(self.parent.current_user_id, "Hypertension", int(prediction))
+        
+        # Display prediction result and advice
+        QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
 
 
 class StrokeFormPage(QWidget):
@@ -401,6 +413,10 @@ class StrokeFormPage(QWidget):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.advice_messages = {
+            1: "Control risk factors like hypertension and diabetes, avoid smoking, and stay physically active.",
+            0: "Maintain a healthy lifestyle to prevent stroke risks in the future."
+        }
         self.init_ui()
 
     def init_ui(self):
@@ -447,7 +463,6 @@ class StrokeFormPage(QWidget):
         back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
         layout.addWidget(back_button)  # Add button to layout
         
-
         self.setLayout(layout)
 
     def save_attributes(self):
@@ -474,10 +489,14 @@ class StrokeFormPage(QWidget):
         avg_glucose_level = self.parent.stroke_data["avg_glucose_level"],
         bmi = self.parent.stroke_data["bmi"],
         smoking_status = self.parent.stroke_data["smoking_status"])
-        print("Prediction:", prediction)
-        # Save to the database
+        # Determine advice based on the prediction result
+        advice = self.advice_messages[int(prediction)]  # Access the advice dictionary
+
+        # Insert the diagnosis result into the database
         database.insert_diagnosis_result(self.parent.current_user_id, "Stroke", int(prediction))
-        QMessageBox.information(self, "Prediction Result", f"The model predicts: {prediction}")
+        
+        # Display prediction result and advice
+        QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
 
 class MainApp(QStackedWidget):
     """Main application managing multiple pages."""
