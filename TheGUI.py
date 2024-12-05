@@ -408,7 +408,7 @@ class HeartDiseaseFormPage(QWidget):
         layout.addRow(QLabel("Cholesterol Level:"), self.cholesterol_input)
 
         self.bp_input = QSpinBox(self)
-        self.bp_input.setRange(80, 200)
+        self.bp_input.setRange(80, 500)
         layout.addRow(QLabel("Blood Pressure:"), self.bp_input)
 
         self.heart_rate_input = QSpinBox(self)
@@ -557,12 +557,12 @@ class HypertensionFormPage(QWidget):
 
         
         self.trestbps = QSpinBox(self)
-        self.trestbps.setRange(80, 200)
+        self.trestbps.setRange(80, 500)
         layout.addRow(QLabel("resting blood pressure:"), self.trestbps)
 
         
         self.chol = QSpinBox(self)
-        self.chol.setRange(50, 200)
+        self.chol.setRange(50, 500)
         layout.addRow(QLabel("Chol level:"), self.chol)
 
        
@@ -589,7 +589,7 @@ class HypertensionFormPage(QWidget):
 
         
         self.slope = QComboBox(self)
-        self.slope.addItems(["Upsloping","Flat"," Downsloping"])
+        self.slope.addItems(["Upsloping","Flat","Downsloping"])
         layout.addRow(QLabel(" peak exercise ST segment:"), self.slope)
         
         self.ca=QSpinBox(self)

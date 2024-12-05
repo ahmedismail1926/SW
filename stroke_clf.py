@@ -59,13 +59,9 @@ print(ap)
 
 def classify_Patient_stroke(sex, age, hypertension, heart_disease, ever_married, work_type, Residence_type, avg_glucose_level, bmi, smoking_status):
     # Convert sex to numerical value (assuming 'male' as 1 and 'female' as 0)
-    sex = 1 if sex == "Male" else 0
-    
-    # Convert hypertension and heart_disease to 1 or 0 (Yes: 1, No: 0)
+    sex = 1 if sex == "Male" else 0    
     hypertension = 1 if hypertension == "Yes" else 0
-    heart_disease = 1 if heart_disease == "Yes" else 0
-    
-    # Convert ever_married to 1 or 0 (married: 1, not married: 0)
+    heart_disease = 1 if heart_disease == "Yes" else 0    
     ever_married = 1 if ever_married == "Yes" else 0
     
     # Convert work_type to corresponding numeric values based on the given mapping
@@ -80,8 +76,6 @@ def classify_Patient_stroke(sex, age, hypertension, heart_disease, ever_married,
     
     # Convert Residence_type to 1 for Urban, 0 for Rural
     Residence_type = 1 if Residence_type == "Urban" else 0
-    
-    # Convert smoking_status to 1 (smokes) or 0 (never smoked)
     smoking_status = 1 if smoking_status == "smokes" else 0
     
     sample = np.array([sex, age, hypertension, heart_disease, ever_married, work_type, Residence_type, avg_glucose_level, bmi, smoking_status]).reshape(1, -1)
