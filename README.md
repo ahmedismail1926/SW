@@ -1,6 +1,6 @@
 # SW
 # Disease Prediction PyQt5 Application
-#By Team 2
+# By Team 2
 Mohamed Elsemary, 5561467
 Loay Othman,5561470
 Ahmed Mohamed,5561469
