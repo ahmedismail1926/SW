@@ -8,6 +8,36 @@ from PyQt5.QtGui import QPixmap, QPalette, QBrush
 from PyQt5.QtCore import Qt
 
 user_id=None
+def show_custom_message(self,title,text):
+    msg_box = QMessageBox(self)
+    msg_box.setWindowTitle(f"{title}")  # Custom title with an emoji
+    msg_box.setInformativeText(f"{text}")  # Additional info
+    msg_box.setIcon(QMessageBox.Information)  # Set an icon (Information, Warning, etc.)
+    msg_box.setStandardButtons(QMessageBox.Ok)  # Add an OK button
+
+    # Customize the stylesheet (Optional)
+    msg_box.setStyleSheet("""
+        QMessageBox {
+            background-color: #f0f8ff;  /* Light blue background */
+            font-size: 14px;  /* Increase font size */
+            color: #2f4f4f;  /* Dark slate gray text color */
+            border-radius: 10px;
+        }
+        QMessageBox QLabel {
+            color: #4b0082;  /* Indigo for labels */
+        }
+        QMessageBox QPushButton {
+            background-color: #4682b4;  /* Steel blue buttons */
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        QMessageBox QPushButton:hover {
+            background-color: #5b9bd5;  /* Lighter blue on hover */
+        }
+    """)
+    msg_box.exec_()
 
 class LoginPage(QWidget):
     """Login page."""
@@ -15,7 +45,6 @@ class LoginPage(QWidget):
         super().__init__()
         self.parent = parent
         self.init_ui()
-
     def init_ui(self):
         layout = QVBoxLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
@@ -99,19 +128,16 @@ class LoginPage(QWidget):
         user_data = database.fetch_user_data(user_id, password)
 
         if user_data:
-            QMessageBox.information(self, "Login Successful", f"Welcome {user_id}!")
             self.parent.current_user_id = user_id
             self.parent.switch_to_disease_choice()
         else:
-            QMessageBox.critical(self, "Login Failed", "Invalid User ID or Password")
+            show_custom_message(self, "Login Failed", "Invalid User ID or Password")
     def set_background_image(self, widget, image_path):
         palette = QPalette()
         pixmap = QPixmap(image_path)
         palette.setBrush(QPalette.Window, QBrush(pixmap))
         widget.setAutoFillBackground(True)
         widget.setPalette(palette)
-
-
 class SignUpPage(QWidget):
     """Sign-up page mimicking login experience."""
     def __init__(self, parent):
@@ -127,16 +153,17 @@ class SignUpPage(QWidget):
         # Styling the inputs, labels, and buttons
         self.setStyleSheet("""
             QLabel {
-                font-size: 16px;  /* Increase font size for labels */
+                font-size: 18px;  /* Increase font size for labels */
+                font-weight: bold;
             }
             QLineEdit, QSpinBox, QComboBox {
-                font-size: 14px;  /* Input text font size */
+                font-size: 18px;  /* Input text font size */
                 padding: 8px;  /* Inner padding for input fields */
                 border: 2px solid #CCCCCC;  /* Border color */
                 border-radius: 10px;  /* Rounded edges */
             }
             QPushButton {
-                font-size: 14px;  /* Button font size */
+                font-size: 18px;  /* Button font size */
                 padding: 10px 15px;  /* Padding for buttons */
                 border: none;
                 border-radius: 10px;  /* Rounded edges */
@@ -169,8 +196,8 @@ class SignUpPage(QWidget):
 
         # Sex
         self.sex_input = QComboBox(self)
-        self.sex_input.addItems(['1', '0'])
-        form_layout.addRow(QLabel("Sex (1 for male, 0 for female):"), self.sex_input)
+        self.sex_input.addItems(['Male', 'Female'])
+        form_layout.addRow(QLabel("Sex:"), self.sex_input)
 
         main_layout = QVBoxLayout()
         main_layout.addLayout(form_layout)
@@ -199,16 +226,16 @@ class SignUpPage(QWidget):
         user_id = self.user_id_input.text().strip()
         password = self.password_input.text().strip()
         age = self.age_input.value()
-        sex = self.sex_input.currentText()
+        sex = "Male" if self.sex_input.currentText() == "1" else "Female" if self.sex_input.currentText() == "0" else None
 
         if user_id and password:
             if database.insert_user_data(user_id, password, age, sex):
-                QMessageBox.information(self, "Sign Up Successful", "You can now log in.")
+                show_custom_message(self, "Sign Up Successful", "You can now log in.")
                 self.parent.switch_to_login()
             else:
-                QMessageBox.warning(self, "Sign Up Failed", "User ID already exists. Please choose a different User ID.")
+                show_custom_message(self, "Sign Up Failed", "User ID already exists. Please choose a different User ID.")
         else:
-            QMessageBox.critical(self, "Error", "All fields are required!")
+            show_custom_message(self, "Error", "All fields are required!")
 
 
 class DiseaseChoicePage(QWidget):
@@ -260,7 +287,8 @@ class DiseaseChoicePage(QWidget):
         # Apply styles
         self.setStyleSheet("""
             QLabel {
-                font-size: 16px;  /* Increase font size for labels */
+                font-size: 18px;  /* Increase font size for labels */
+                font-weight: bold;
             }
             QComboBox, QTableWidget {
                 font-size: 14px;  /* Input and table font size */
@@ -340,10 +368,10 @@ class HeartDiseaseFormPage(QWidget):
         # Style for increasing font size and rounding edges
         self.setStyleSheet("""
             QLabel {
-                font-size: 14px;
+                font-size: 18px;
             }
             QSpinBox, QComboBox {
-                font-size: 14px;
+                font-size: 18px;
                 padding: 5px;
                 border: 1px solid #ccc;
                 border-radius: 10px;
@@ -438,7 +466,6 @@ class HeartDiseaseFormPage(QWidget):
             "blood_sugar": self.blood_sugar_input.value(),
         }
         
-        QMessageBox.information(self, "Success", "Attributes saved!")
         print(self.parent.heart_disease_data)
         
         try:
@@ -457,9 +484,9 @@ class HeartDiseaseFormPage(QWidget):
             )
             advice = self.advice_messages[int(prediction)]
             database.insert_diagnosis_result(self.parent.current_user_id, "Heart Disease", int(prediction))
-            QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
+            show_custom_message(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"An error occurred: {e}")
+            show_custom_message(self, "Error", f"An error occurred: {e}")
             print("Error:", e)
 
 
@@ -486,10 +513,10 @@ class HypertensionFormPage(QWidget):
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
         self.setStyleSheet("""
             QLabel {
-                font-size: 14px;
+                font-size: 18px;
             }
             QSpinBox, QComboBox {
-                font-size: 14px;
+                font-size: 18px;
                 padding: 5px;
                 border: 1px solid #ccc;
                 border-radius: 10px;
@@ -594,7 +621,6 @@ class HypertensionFormPage(QWidget):
             "ca":self.ca.value(),
             "thal":self.thal.currentText()
         }
-        QMessageBox.information(self, "Success", "Attributes saved!")
         print(self.parent.heart_disease_data)
         # try:
         prediction = hypertension_clf.classify_Patient_hypertension(
@@ -618,7 +644,7 @@ class HypertensionFormPage(QWidget):
         database.insert_diagnosis_result(self.parent.current_user_id, "Hypertension", int(prediction))
         
         # Display prediction result and advice
-        QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
+        show_custom_message(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
 
 
 class StrokeFormPage(QWidget):
@@ -642,10 +668,10 @@ class StrokeFormPage(QWidget):
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
         self.setStyleSheet("""
             QLabel {
-                font-size: 14px;
+                font-size: 18px;
             }
             QSpinBox, QComboBox {
-                font-size: 14px;
+                font-size: 18px;
                 padding: 5px;
                 border: 1px solid #ccc;
                 border-radius: 10px;
@@ -727,7 +753,6 @@ class StrokeFormPage(QWidget):
             "bmi": self.bmi_input.value(),
             "smoking_status": self.smoking_status_input.currentText(),
         }
-        QMessageBox.information(self, "Success", "Attributes saved!")
         print(self.parent.stroke_data)
         prediction=stroke_clf.classify_Patient_stroke(
         sex="male",
@@ -747,7 +772,7 @@ class StrokeFormPage(QWidget):
         database.insert_diagnosis_result(self.parent.current_user_id, "Stroke", int(prediction))
         
         # Display prediction result and advice
-        QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
+        show_custom_message(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
 
 class MainApp(QStackedWidget):
     """Main application managing multiple pages."""
