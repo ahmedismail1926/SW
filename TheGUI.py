@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QStackedWidget, QVBoxLayout, QFormLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox,QTableWidget, QTableWidgetItem
+    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox,QTableWidget, QTableWidgetItem,QHBoxLayout
 )
 import database,heart_disease_clf,hypertension_clf,stroke_clf
+from PyQt5.QtGui import QPixmap, QPalette, QBrush
+from PyQt5.QtCore import Qt
 
 user_id=None
 
@@ -15,24 +17,76 @@ class LoginPage(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
+        self.setStyleSheet("""
+            QLabel, QLineEdit, QPushButton {
+                font-size: 18px; /* Adjust the font size as needed */
+            }
+        """)
+
+        # User ID row
+        user_id_row = QHBoxLayout()
+        user_id_label = QLabel("User ID:")
         self.user_id_input = QLineEdit(self)
-        user_id=self.user_id_input
+        self.user_id_input.setStyleSheet("""
+            QLineEdit {
+                border-radius: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+            }
+        """)
         self.user_id_input.setPlaceholderText("Enter User ID")
-        layout.addWidget(QLabel("User ID:"))
-        layout.addWidget(self.user_id_input)
+        user_id_row.addWidget(user_id_label)
+        user_id_row.addWidget(self.user_id_input)
+        layout.addLayout(user_id_row)
 
+        # Password row
+        password_row = QHBoxLayout()
+        password_label = QLabel("Password:")
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText("Enter Password")
+        self.password_input.setStyleSheet("""
+            QLineEdit {
+                border-radius: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                padding: 10px;
+            }
+        """)
         self.password_input.setEchoMode(QLineEdit.Password)
-        layout.addWidget(QLabel("Password:"))
-        layout.addWidget(self.password_input)
+        password_row.addWidget(password_label)
+        password_row.addWidget(self.password_input)
+        layout.addLayout(password_row)
 
+        # Login button
         login_button = QPushButton("Login", self)
+        login_button.setStyleSheet("""
+            QPushButton {
+                border-radius: 15px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #45a049;
+            }
+        """)
         login_button.clicked.connect(self.login)
         layout.addWidget(login_button)
 
+        # Sign up button
         sign_up_button = QPushButton("Sign Up", self)
+        sign_up_button.setStyleSheet("""
+            QPushButton {
+                border-radius: 15px;
+                background-color: #008CBA;
+                color: white;
+                padding: 10px;
+            }
+            QPushButton:hover {
+                background-color: #007bb5;
+            }
+        """)
         sign_up_button.clicked.connect(self.parent.switch_to_sign_up)
         layout.addWidget(sign_up_button)
 
@@ -49,6 +103,12 @@ class LoginPage(QWidget):
             self.parent.switch_to_disease_choice()
         else:
             QMessageBox.critical(self, "Login Failed", "Invalid User ID or Password")
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
 
 
 class SignUpPage(QWidget):
@@ -60,6 +120,7 @@ class SignUpPage(QWidget):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
         self.user_id_input = QLineEdit(self)
         self.user_id_input.setPlaceholderText("Create User ID")
@@ -92,6 +153,12 @@ class SignUpPage(QWidget):
 
 
         self.setLayout(layout)
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
     def sign_up(self):
         user_id = self.user_id_input.text().strip()
         password = self.password_input.text().strip()
@@ -119,6 +186,7 @@ class DiseaseChoicePage(QWidget):
         layout = QVBoxLayout()
 
         layout.addWidget(QLabel("Choose a disease to check:"))
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
         self.disease_combo = QComboBox(self)
         self.disease_combo.addItems(["Heart Disease", "hypertension", "stroke"])
@@ -145,6 +213,13 @@ class DiseaseChoicePage(QWidget):
     def showEvent(self, event):
         super().showEvent(event)
         self.load_diagnosis_history()
+
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
 
     def load_diagnosis_history(self):
         user_id = self.parent.current_user_id
@@ -181,10 +256,17 @@ class HeartDiseaseFormPage(QWidget):
         }
         self.init_ui()
 
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
+        
     def init_ui(self):
         layout = QFormLayout()
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
-       
         self.cholesterol_input = QSpinBox(self)
         self.cholesterol_input.setRange(100, 500)
         layout.addRow(QLabel("Cholesterol Level:"), self.cholesterol_input)
@@ -199,7 +281,6 @@ class HeartDiseaseFormPage(QWidget):
         self.heart_rate_input.setRange(50, 200)
         layout.addRow(QLabel("Heart Rate:"), self.heart_rate_input)
 
-       
         self.smoking_input = QComboBox(self)
         self.smoking_input.addItems(["Former", "Current", "Never"])
         layout.addRow(QLabel("Smoking Status:"), self.smoking_input)
@@ -302,8 +383,16 @@ class HypertensionFormPage(QWidget):
         }
         self.init_ui()
 
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
+
     def init_ui(self):
         layout = QFormLayout()
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
        
         self.cp = QComboBox(self)
@@ -418,9 +507,15 @@ class StrokeFormPage(QWidget):
             0: "Maintain a healthy lifestyle to prevent stroke risks in the future."
         }
         self.init_ui()
-
+    def set_background_image(self, widget, image_path):
+        palette = QPalette()
+        pixmap = QPixmap(image_path)
+        palette.setBrush(QPalette.Window, QBrush(pixmap))
+        widget.setAutoFillBackground(True)
+        widget.setPalette(palette)
     def init_ui(self):
         layout = QFormLayout()
+        self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
         self.hypertension_input = QComboBox(self)
         self.hypertension_input.addItems(["No", "Yes"])
