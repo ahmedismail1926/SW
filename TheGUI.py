@@ -395,6 +395,17 @@ class HeartDiseaseFormPage(QWidget):
         layout = QFormLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
+<<<<<<< HEAD
+=======
+        self.sex_input = QComboBox(self)
+        self.sex_input.addItems(["Male", "Female"])
+        layout.addRow(QLabel("Sex:"), self.sex_input)
+
+        self.age_input = QSpinBox(self)
+        self.age_input.setRange(1, 120)
+        layout.addRow(QLabel("Age:"), self.age_input)
+
+>>>>>>> miracle
         self.cholesterol_input = QSpinBox(self)
         self.cholesterol_input.setRange(100, 500)
         layout.addRow(QLabel("Cholesterol Level:"), self.cholesterol_input)
@@ -454,6 +465,8 @@ class HeartDiseaseFormPage(QWidget):
 
     def save_attributes(self):
         self.parent.heart_disease_data = {
+            "age":self.age_input.value(),
+            "sex":self.sex_input.currentText(),
             "cholesterol": self.cholesterol_input.value(),
             "blood_pressure": self.bp_input.value(),
             "heart_rate": self.heart_rate_input.value(),
@@ -470,6 +483,7 @@ class HeartDiseaseFormPage(QWidget):
         
         try:
             prediction = heart_disease_clf.classify_Patient_heart_disease(
+<<<<<<< HEAD
                 age=21,
                 gender="Male",
                 cholester=self.parent.heart_disease_data["cholesterol"],
@@ -481,6 +495,19 @@ class HeartDiseaseFormPage(QWidget):
                 diabetes=self.parent.heart_disease_data["diabetes"],
                 obesity=self.parent.heart_disease_data["obesity"],
                 Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
+=======
+            age= self.parent.heart_disease_data["age"],
+            gender=self.parent.heart_disease_data["sex"],  # Add 'gender' to your inputs
+            cholester=self.parent.heart_disease_data["cholesterol"],
+            heart_rate=self.parent.heart_disease_data["heart_rate"],
+            smoking=self.parent.heart_disease_data["smoking"],
+            Alcohol_Intake=self.parent.heart_disease_data["alcohol"],
+            Exercise_Hours=self.parent.heart_disease_data["exercise_level"],
+            Family_History=self.parent.heart_disease_data["family_history"],
+            diabetes=self.parent.heart_disease_data["diabetes"],
+            obesity=self.parent.heart_disease_data["obesity"],
+            Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
+>>>>>>> miracle
             )
             advice = self.advice_messages[int(prediction)]
             database.insert_diagnosis_result(self.parent.current_user_id, "Heart Disease", int(prediction))
@@ -537,6 +564,13 @@ class HypertensionFormPage(QWidget):
             }
         """)
 
+<<<<<<< HEAD
+=======
+        self.age_input = QSpinBox(self)
+        self.age_input.setRange(1, 120)
+        layout.addRow(QLabel("Age:"), self.age_input)
+       
+>>>>>>> miracle
         self.cp = QComboBox(self)
         self.cp.addItems(["asymptomatic","typical angina","atypical angina","non-anginal"])
         layout.addRow(QLabel("Chest pain:"), self.cp)
@@ -609,6 +643,7 @@ class HypertensionFormPage(QWidget):
 
     def save_attributes(self):
         self.parent.hypertension_data ={
+            "age":self.age_input.value(),
             "chest pain":self.cp.currentText(),
             "trestbps":self.trestbps.value(),
             "cholestrol level":self.chol.value(),
@@ -624,7 +659,7 @@ class HypertensionFormPage(QWidget):
         print(self.parent.heart_disease_data)
         # try:
         prediction = hypertension_clf.classify_Patient_hypertension(
-        age=57,  # Example: Assuming age is 20
+        age=self.parent.hypertension_data["age"],
         cp=self.parent.hypertension_data["chest pain"],
         trestbps=self.parent.hypertension_data["trestbps"],
         chol=self.parent.hypertension_data["cholestrol level"],
@@ -692,6 +727,14 @@ class StrokeFormPage(QWidget):
             }
         """)
 
+        self.sex_input = QComboBox(self)
+        self.sex_input.addItems(["Male", "Female"])
+        layout.addRow(QLabel("Sex:"), self.sex_input)
+
+        self.age_input = QSpinBox(self)
+        self.age_input.setRange(1, 120)
+        layout.addRow(QLabel("Age:"), self.age_input)
+
         self.hypertension_input = QComboBox(self)
         self.hypertension_input.addItems(["No", "Yes"])
         layout.addRow(QLabel("Hypertension:"), self.hypertension_input)
@@ -744,6 +787,8 @@ class StrokeFormPage(QWidget):
 
     def save_attributes(self):
         self.parent.stroke_data = {
+            "age":self.age_input.value(),
+            "sex":self.sex_input.currentText(),
             "hypertension": self.hypertension_input.currentText(),
             "heart_disease": self.heart_disease_input.currentText(),
             "ever_married": self.married_input.currentText(),
@@ -755,8 +800,8 @@ class StrokeFormPage(QWidget):
         }
         print(self.parent.stroke_data)
         prediction=stroke_clf.classify_Patient_stroke(
-        sex="male",
-        age =63,
+        sex=self.parent.stroke_data["sex"],
+        age =self.parent.stroke_data["age"],
         hypertension = self.parent.stroke_data["hypertension"],
         heart_disease = self.parent.stroke_data["heart_disease"],
         ever_married = self.parent.stroke_data["ever_married"],

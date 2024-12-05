@@ -59,7 +59,7 @@ print(ap)
 
 def classify_Patient_stroke(sex, age, hypertension, heart_disease, ever_married, work_type, Residence_type, avg_glucose_level, bmi, smoking_status):
     # Convert sex to numerical value (assuming 'male' as 1 and 'female' as 0)
-    sex = 1 if sex == "male" else 0
+    sex = 1 if sex == "Male" else 0
     
     # Convert hypertension and heart_disease to 1 or 0 (Yes: 1, No: 0)
     hypertension = 1 if hypertension == "Yes" else 0
