@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 
 DATABASE_FILE = "Database.db"
@@ -18,6 +19,18 @@ def create_table():
             sex INTEGER CHECK(sex IN (0, 1))   
         )
     ''')
+    # New table for diagnosis results
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS diagnosis_result (
+            result_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            disease_type TEXT NOT NULL,
+            diagnosis INTEGER CHECK(diagnosis IN (0, 1)),
+            diagnosis_date TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES user_info(user_id)
+        )
+    ''')
+    
     conn.commit()
     conn.close()
 
@@ -83,3 +96,38 @@ def get_user_age(user_id):
     conn.close()
     
     return row[0] if row else None 
+
+def insert_diagnosis_result(user_id, disease_type, diagnosis):
+    """Insert a new diagnosis result into the database."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    
+    current_date = datetime.now().strftime("%Y-%m-%d")  # Get current date
+    
+    cursor.execute('''
+        INSERT INTO diagnosis_result (user_id, disease_type, diagnosis, diagnosis_date)
+        VALUES (?, ?, ?, ?)
+    ''', (user_id, disease_type, diagnosis, current_date))
+    
+    conn.commit()
+    conn.close()
+
+def fetch_diagnosis_history(user_id):
+    """Fetch all diagnosis results for a specific user ID."""
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT disease_type, diagnosis, diagnosis_date 
+        FROM diagnosis_result
+        WHERE user_id = ?
+    ''', (user_id,))
+    
+    results = cursor.fetchall()
+    conn.close()
+    
+    # Return results as a list of dictionaries for better readability
+    return [
+        {"disease_type": row[0], "diagnosis": row[1], "date": row[2]}
+        for row in results
+    ]
