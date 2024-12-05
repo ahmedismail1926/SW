@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QStackedWidget, QVBoxLayout, QFormLayout,
-    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox,QTableWidget, QTableWidgetItem,QHBoxLayout
+    QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QSpinBox,QTableWidget, 
+    QTableWidgetItem,QHBoxLayout, QSizePolicy
 )
 import database,heart_disease_clf,hypertension_clf,stroke_clf
 from PyQt5.QtGui import QPixmap, QPalette, QBrush
@@ -119,46 +120,81 @@ class SignUpPage(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        # Use QFormLayout for side-by-side arrangement
+        form_layout = QFormLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
+        # Styling the inputs, labels, and buttons
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 16px;  /* Increase font size for labels */
+            }
+            QLineEdit, QSpinBox, QComboBox {
+                font-size: 14px;  /* Input text font size */
+                padding: 8px;  /* Inner padding for input fields */
+                border: 2px solid #CCCCCC;  /* Border color */
+                border-radius: 10px;  /* Rounded edges */
+            }
+            QPushButton {
+                font-size: 14px;  /* Button font size */
+                padding: 10px 15px;  /* Padding for buttons */
+                border: none;
+                border-radius: 10px;  /* Rounded edges */
+                background-color: #007BFF;  /* Blue background for buttons */
+                color: white;  /* White text */
+            }
+            QPushButton:hover {
+                background-color: #0056b3;  /* Darker blue on hover */
+            }
+            QPushButton:pressed {
+                background-color: #004085;  /* Even darker blue on press */
+            }
+        """)
+
+        # User ID
         self.user_id_input = QLineEdit(self)
         self.user_id_input.setPlaceholderText("Create User ID")
-        layout.addWidget(QLabel("User ID:"))
-        layout.addWidget(self.user_id_input)
+        form_layout.addRow(QLabel("User ID:"), self.user_id_input)
 
+        # Password
         self.password_input = QLineEdit(self)
         self.password_input.setPlaceholderText("Create Password")
         self.password_input.setEchoMode(QLineEdit.Password)
-        layout.addWidget(QLabel("Password:"))
-        layout.addWidget(self.password_input)
+        form_layout.addRow(QLabel("Password:"), self.password_input)
 
+        # Age
         self.age_input = QSpinBox(self)
-        self.age_input.setRange(1, 120)  
-        layout.addWidget(QLabel("Age:"))
-        layout.addWidget(self.age_input)
+        self.age_input.setRange(1, 120)
+        form_layout.addRow(QLabel("Age:"), self.age_input)
 
+        # Sex
         self.sex_input = QComboBox(self)
-        self.sex_input.addItems(['1', '0'])  
-        layout.addWidget(QLabel("Sex (1 for male   , 0 for female):"))
-        layout.addWidget(self.sex_input)
+        self.sex_input.addItems(['1', '0'])
+        form_layout.addRow(QLabel("Sex (1 for male, 0 for female):"), self.sex_input)
 
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(form_layout)
+
+        # Buttons
         sign_up_button = QPushButton("Sign Up", self)
         sign_up_button.clicked.connect(self.sign_up)
-        layout.addWidget(sign_up_button)
-        # back button
+        main_layout.addWidget(sign_up_button)
+
         back_button = QPushButton("Back", self)
         back_button.clicked.connect(self.parent.go_back)
-        layout.addWidget(back_button)
+        main_layout.addWidget(back_button)
 
+        # Add the form layout and button layout to a main layout
 
-        self.setLayout(layout)
+        self.setLayout(main_layout)
+
     def set_background_image(self, widget, image_path):
         palette = QPalette()
         pixmap = QPixmap(image_path)
         palette.setBrush(QPalette.Window, QBrush(pixmap))
         widget.setAutoFillBackground(True)
         widget.setPalette(palette)
+
     def sign_up(self):
         user_id = self.user_id_input.text().strip()
         password = self.password_input.text().strip()
@@ -183,32 +219,70 @@ class DiseaseChoicePage(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("Choose a disease to check:"))
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
+        # Disease selection with QFormLayout
+        form_layout = QFormLayout()
+        form_layout.addRow(QLabel("Choose a disease to check:"), None)  # Header label
         self.disease_combo = QComboBox(self)
         self.disease_combo.addItems(["Heart Disease", "hypertension", "stroke"])
-        layout.addWidget(self.disease_combo)
+        form_layout.addRow(QLabel("Disease:"), self.disease_combo)
 
-        next_button = QPushButton("Next", self)
-        next_button.clicked.connect(self.next_page)
-        layout.addWidget(next_button)
-        #back button
-        back_button = QPushButton("Back", self)
-        back_button.clicked.connect(self.parent.go_back)
-        layout.addWidget(back_button)  # Add at the end of the layout
-        #diagnosis his
-        # Diagnosis history label
+        # Add the form layout to the main layout
+        main_layout.addLayout(form_layout)
+
+        # Diagnosis history table
         self.historyTable = QTableWidget(self)
         self.historyTable.setColumnCount(3)  # 3 columns: Disease Type, Diagnosis, Date
         self.historyTable.setHorizontalHeaderLabels(["Disease Type", "Diagnosis", "Date"])
-        layout.addWidget(self.historyTable)
+        self.historyTable.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        main_layout.addWidget(self.historyTable)
 
+        # Buttons with QHBoxLayout for alignment
+        button_layout = QHBoxLayout()
 
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        button_layout.addWidget(back_button)
 
-        self.setLayout(layout)
+        next_button = QPushButton("Next", self)
+        next_button.clicked.connect(self.next_page)
+        button_layout.addWidget(next_button)
+
+        # Add button layout to the main layout
+        main_layout.addLayout(button_layout)
+
+        # Set the main layout
+        self.setLayout(main_layout)
+
+        # Apply styles
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 16px;  /* Increase font size for labels */
+            }
+            QComboBox, QTableWidget {
+                font-size: 14px;  /* Input and table font size */
+                padding: 8px;  /* Inner padding for inputs */
+                border: 2px solid #CCCCCC;  /* Border color */
+                border-radius: 10px;  /* Rounded edges for inputs */
+            }
+            QPushButton {
+                font-size: 14px;  /* Button font size */
+                padding: 10px 15px;  /* Padding for buttons */
+                border: none;
+                border-radius: 10px;  /* Rounded edges */
+                background-color: #007BFF;  /* Blue background for buttons */
+                color: white;  /* White text */
+            }
+            QPushButton:hover {
+                background-color: #0056b3;  /* Darker blue on hover */
+            }
+            QPushButton:pressed {
+                background-color: #004085;  /* Even darker blue on press */
+            }
+        """)
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -224,24 +298,23 @@ class DiseaseChoicePage(QWidget):
     def load_diagnosis_history(self):
         user_id = self.parent.current_user_id
         history = database.fetch_diagnosis_history(user_id)
-        
-        
+
         self.historyTable.clearContents()
         self.historyTable.setRowCount(len(history))
         for row_index, entry in enumerate(history):
             self.historyTable.setItem(row_index, 0, QTableWidgetItem(entry['disease_type']))
             self.historyTable.setItem(row_index, 1, QTableWidgetItem(str(entry['diagnosis'])))
             self.historyTable.setItem(row_index, 2, QTableWidgetItem(entry['date']))
-        
-        
+
         self.historyTable.resizeColumnsToContents()
+
     def next_page(self):
         selected_disease = self.disease_combo.currentText()
         if selected_disease == "Heart Disease":
             self.parent.switch_to_heart_disease_form()
         elif selected_disease == "hypertension":
             self.parent.switch_to_hypertension_form()
-        elif selected_disease== "stroke":
+        elif selected_disease == "stroke":
             self.parent.switch_to_stroke_form()
 
 
@@ -264,6 +337,33 @@ class HeartDiseaseFormPage(QWidget):
         widget.setPalette(palette)
         
     def init_ui(self):
+        # Style for increasing font size and rounding edges
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 14px;
+            }
+            QSpinBox, QComboBox {
+                font-size: 14px;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+            }
+            QPushButton {
+                font-size: 14px;
+                padding: 8px 16px;
+                border: 2px solid #007BFF;
+                border-radius: 15px;
+                background-color: #007BFF;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #004080;
+            }
+        """)
+
         layout = QFormLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
 
@@ -271,12 +371,10 @@ class HeartDiseaseFormPage(QWidget):
         self.cholesterol_input.setRange(100, 500)
         layout.addRow(QLabel("Cholesterol Level:"), self.cholesterol_input)
 
-        
         self.bp_input = QSpinBox(self)
         self.bp_input.setRange(80, 200)
         layout.addRow(QLabel("Blood Pressure:"), self.bp_input)
 
-        
         self.heart_rate_input = QSpinBox(self)
         self.heart_rate_input.setRange(50, 200)
         layout.addRow(QLabel("Heart Rate:"), self.heart_rate_input)
@@ -285,48 +383,46 @@ class HeartDiseaseFormPage(QWidget):
         self.smoking_input.addItems(["Former", "Current", "Never"])
         layout.addRow(QLabel("Smoking Status:"), self.smoking_input)
 
-        
         self.alcohol_input = QComboBox(self)
         self.alcohol_input.addItems(["Heavy", "Moderate", "None"])
         layout.addRow(QLabel("Alcohol Intake:"), self.alcohol_input)
 
-        
         self.exercise_input = QSpinBox(self)
         self.exercise_input.setRange(1, 9)
         layout.addRow(QLabel("Exercise Level (1-9):"), self.exercise_input)
 
-        
         self.family_history_input = QComboBox(self)
         self.family_history_input.addItems(["Yes", "No"])
         layout.addRow(QLabel("Family History:"), self.family_history_input)
 
-        
         self.diabetes_input = QComboBox(self)
         self.diabetes_input.addItems(["Yes", "No"])
         layout.addRow(QLabel("Diabetes:"), self.diabetes_input)
 
-        
         self.obesity_input = QComboBox(self)
         self.obesity_input.addItems(["Yes", "No"])
         layout.addRow(QLabel("Obesity:"), self.obesity_input)
 
-        
         self.blood_sugar_input = QSpinBox(self)
         self.blood_sugar_input.setRange(70, 300)
         layout.addRow(QLabel("Blood Sugar Level:"), self.blood_sugar_input)
 
-        
+        main_layout = QVBoxLayout()
+
+        main_layout.addLayout(layout)
+        Buttons_layout = QHBoxLayout()
+
+        # Back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        Buttons_layout.addWidget(back_button)
+        # Save button
         save_button = QPushButton("Save", self)
         save_button.clicked.connect(self.save_attributes)
-        layout.addWidget(save_button)
+        Buttons_layout.addWidget(save_button)
 
-        #back button
-        back_button = QPushButton("Back", self)
-        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
-        layout.addWidget(back_button)  # Add button to layout
-        
-
-        self.setLayout(layout)
+        main_layout.addLayout(Buttons_layout)
+        self.setLayout(main_layout)
 
     def save_attributes(self):
         self.parent.heart_disease_data = {
@@ -347,25 +443,20 @@ class HeartDiseaseFormPage(QWidget):
         
         try:
             prediction = heart_disease_clf.classify_Patient_heart_disease(
-            age=21,
-            gender="Male",  # Add 'gender' to your inputs
-            cholester=self.parent.heart_disease_data["cholesterol"],
-            heart_rate=self.parent.heart_disease_data["heart_rate"],
-            smoking=self.parent.heart_disease_data["smoking"],
-            Alcohol_Intake=self.parent.heart_disease_data["alcohol"],
-            Exercise_Hours=self.parent.heart_disease_data["exercise_level"],
-            Family_History=self.parent.heart_disease_data["family_history"],
-            diabetes=self.parent.heart_disease_data["diabetes"],
-            obesity=self.parent.heart_disease_data["obesity"],
-            Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
+                age=21,
+                gender="Male",
+                cholester=self.parent.heart_disease_data["cholesterol"],
+                heart_rate=self.parent.heart_disease_data["heart_rate"],
+                smoking=self.parent.heart_disease_data["smoking"],
+                Alcohol_Intake=self.parent.heart_disease_data["alcohol"],
+                Exercise_Hours=self.parent.heart_disease_data["exercise_level"],
+                Family_History=self.parent.heart_disease_data["family_history"],
+                diabetes=self.parent.heart_disease_data["diabetes"],
+                obesity=self.parent.heart_disease_data["obesity"],
+                Blood_sugar=self.parent.heart_disease_data["blood_sugar"]
             )
-            # Determine advice based on the prediction result
-            advice = self.advice_messages[int(prediction)]  # Access the advice dictionary
-            
-            # Insert the diagnosis result into the database
+            advice = self.advice_messages[int(prediction)]
             database.insert_diagnosis_result(self.parent.current_user_id, "Heart Disease", int(prediction))
-            
-            # Display prediction result and advice
             QMessageBox.information(self, "Prediction Result", f"The model predicts: {'Positive' if int(prediction) == 1 else 'Negative'}\nAdvice: {advice}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {e}")
@@ -393,8 +484,32 @@ class HypertensionFormPage(QWidget):
     def init_ui(self):
         layout = QFormLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 14px;
+            }
+            QSpinBox, QComboBox {
+                font-size: 14px;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+            }
+            QPushButton {
+                font-size: 14px;
+                padding: 8px 16px;
+                border: 2px solid #007BFF;
+                border-radius: 15px;
+                background-color: #007BFF;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #004080;
+            }
+        """)
 
-       
         self.cp = QComboBox(self)
         self.cp.addItems(["asymptomatic","typical angina","atypical angina","non-anginal"])
         layout.addRow(QLabel("Chest pain:"), self.cp)
@@ -445,13 +560,22 @@ class HypertensionFormPage(QWidget):
         layout.addRow(QLabel("Thalassemia type:"), self.thal)
 
         
+        main_layout = QVBoxLayout()
+
+        main_layout.addLayout(layout)
+        Buttons_layout = QHBoxLayout()
+
+        # Back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        Buttons_layout.addWidget(back_button)
+        # Save button
         save_button = QPushButton("Save", self)
         save_button.clicked.connect(self.save_attributes)
-        layout.addWidget(save_button)
-        #back button
-        back_button = QPushButton("Back", self)
-        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
-        layout.addWidget(back_button)  # Add button to layout
+        Buttons_layout.addWidget(save_button)
+
+        main_layout.addLayout(Buttons_layout)
+        self.setLayout(main_layout)
         
 
         self.setLayout(layout)
@@ -516,6 +640,31 @@ class StrokeFormPage(QWidget):
     def init_ui(self):
         layout = QFormLayout()
         self.set_background_image(self, "background.jpg")  # Replace with the actual image path
+        self.setStyleSheet("""
+            QLabel {
+                font-size: 14px;
+            }
+            QSpinBox, QComboBox {
+                font-size: 14px;
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+            }
+            QPushButton {
+                font-size: 14px;
+                padding: 8px 16px;
+                border: 2px solid #007BFF;
+                border-radius: 15px;
+                background-color: #007BFF;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: #0056b3;
+            }
+            QPushButton:pressed {
+                background-color: #004080;
+            }
+        """)
 
         self.hypertension_input = QComboBox(self)
         self.hypertension_input.addItems(["No", "Yes"])
@@ -550,15 +699,22 @@ class StrokeFormPage(QWidget):
         self.smoking_status_input.addItems(["No", "Yes"])
         layout.addRow(QLabel("Smoking Status:"), self.smoking_status_input)
 
+        main_layout = QVBoxLayout()
+
+        main_layout.addLayout(layout)
+        Buttons_layout = QHBoxLayout()
+
+        # Back button
+        back_button = QPushButton("Back", self)
+        back_button.clicked.connect(self.parent.go_back)
+        Buttons_layout.addWidget(back_button)
+        # Save button
         save_button = QPushButton("Save", self)
         save_button.clicked.connect(self.save_attributes)
-        layout.addWidget(save_button)
-        #back button
-        back_button = QPushButton("Back", self)
-        back_button.clicked.connect(self.parent.go_back)  # Connect to parent’s back method
-        layout.addWidget(back_button)  # Add button to layout
-        
-        self.setLayout(layout)
+        Buttons_layout.addWidget(save_button)
+
+        main_layout.addLayout(Buttons_layout)
+        self.setLayout(main_layout)
 
     def save_attributes(self):
         self.parent.stroke_data = {
